@@ -114,7 +114,6 @@ class SnmpIfPortEntity(SnmpIfEntity):
             if 'enabled' in auto_negotiation.lower():
                 return 'True'
         except Exception as e:
-            import ipdb;ipdb.set_trace()
             self._logger.error('Failed to load auto negotiation property for interface {0}'.format(e.message))
 
     def _get_cisco_duplex(self):
