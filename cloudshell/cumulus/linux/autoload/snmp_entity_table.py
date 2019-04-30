@@ -319,9 +319,9 @@ class CiscoSNMPEntityTable(object):
             port_id = int(ent_alias_mapping_identifier['entAliasMappingIdentifier'].split('.')[-1])
             port_if_entity = self._if_table.get_if_entity_by_index(port_id)
         except Exception as e:
-            self._logger.error("Failed to load entAliasMappingIdentifier: {}".format(e.message))
-
+            self._logger.debug("ERROR: Failed to load entAliasMappingIdentifier: {}".format(e.message))
             port_if_entity = self._if_table.get_if_index_from_port_name(port_descr, port_exclude_list)
+
         return port_if_entity
 
     def _filter_power_port_list(self):

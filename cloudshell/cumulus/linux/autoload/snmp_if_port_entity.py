@@ -66,9 +66,11 @@ class SnmpIfPortEntity(SnmpIfEntity):
 
     @property
     def auto_negotiation(self):
-        if not self._auto_neg:
-            self._auto_neg = self._get_auto_neg() or "False"
-        return self._auto_neg
+        return None
+        # todo: get correct attribute value
+        # if not self._auto_neg:
+        #     self._auto_neg = self._get_auto_neg() or "False"
+        # return self._auto_neg
 
     def _get_adjacent(self):
         """Get connected device interface and device name to the specified port id, using cdp or lldp protocols
