@@ -1,7 +1,7 @@
 # cloudshell-cumulus-linux
 
 [![Build status](https://travis-ci.org/QualiSystems/cloudshell-cumulus-linux.svg)](https://travis-ci.org/QualiSystems/cloudshell-cumulus-linux)
-[![codecov](https://codecov.io/gh/QualiSystems/cloudshell-cumulus-linux/branch/dev/graph/badge.svg)](https://codecov.io/gh/QualiSystems/cloudshell-cumulus-linux)
+[![codecov](https://codecov.io/gh/QualiSystems/cloudshell-cumulus-linux/branch/master/graph/badge.svg)](https://codecov.io/gh/QualiSystems/cloudshell-cumulus-linux)
 [![PyPI version](https://badge.fury.io/py/cloudshell-cumulus-linux.svg)](https://badge.fury.io/py/cloudshell-cumulus-linux)
 [![Dependency Status](https://dependencyci.com/github/QualiSystems/cloudshell-cumulus-linux/badge)](https://dependencyci.com/github/QualiSystems/cloudshell-cumulus-linux)
 
