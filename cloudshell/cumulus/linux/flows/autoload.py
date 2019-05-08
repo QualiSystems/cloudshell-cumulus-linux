@@ -13,10 +13,10 @@ class CumulusLinuxSnmpAutoloadFlow(AutoloadFlow):
         :return:
         """
         with self._snmp_handler.get_snmp_service() as snmp_service:
-            cisco_snmp_autoload = CumulusLinuxSNMPAutoload(snmp_handler=snmp_service,
-                                                           shell_name=shell_name,
-                                                           shell_type=shell_type,
-                                                           resource_name=resource_name,
-                                                           logger=self._logger)
+            snmp_autoload = CumulusLinuxSNMPAutoload(snmp_handler=snmp_service,
+                                                     shell_name=shell_name,
+                                                     shell_type=shell_type,
+                                                     resource_name=resource_name,
+                                                     logger=self._logger)
 
-            return cisco_snmp_autoload.discover(supported_os)
+            return snmp_autoload.discover(supported_os)
