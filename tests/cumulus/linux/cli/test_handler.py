@@ -15,5 +15,3 @@ class TestCliHandlerImpl(unittest.TestCase):
                                              resource_config=self.resource_config,
                                              api=self.api,
                                              logger=self.logger)
-
-    
