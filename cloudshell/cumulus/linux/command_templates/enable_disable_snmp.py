@@ -6,6 +6,9 @@ SHOW_SNMP_STATUS = CommandTemplate("net show snmp-server status", error_map=ERRO
 
 ADD_LISTENING_ADDRESS = CommandTemplate('net add snmp-server listening-address all', error_map=ERROR_MAP)
 
+ADD_LISTENING_ADDRESS_WITH_VRF = CommandTemplate('net add snmp-server listening-address {ip_address} vrf {vrf_name}',
+                                                 error_map=ERROR_MAP)
+
 CREATE_VIEW = CommandTemplate('net add snmp-server viewname {view_name} included .1', error_map=ERROR_MAP)
 
 ENABLE_SNMP_READ = CommandTemplate('net add snmp-server readonly-community {snmp_community} access any '
@@ -15,6 +18,9 @@ ENABLE_SNMP_USER = CommandTemplate('net add snmp-server username {snmp_user} {sn
                                    '{snmp_priv_proto} {snmp_priv_key} view {view_name}', error_map=ERROR_MAP)
 
 REMOVE_LISTENING_ADDRESS = CommandTemplate('net del snmp-server listening-address all', error_map=ERROR_MAP)
+
+REMOVE_LISTENING_ADDRESS_WITH_VRF = CommandTemplate('net del snmp-server listening-address {ip_address} vrf {vrf_name}',
+                                                    error_map=ERROR_MAP)
 
 REMOVE_VIEW = CommandTemplate('net del snmp-server viewname {view_name} included .1', error_map=ERROR_MAP)
 

@@ -8,6 +8,16 @@ from cloudshell.snmp.snmp_parameters import SNMPV2WriteParameters
 
 
 class CumulusLinuxDisableSnmpFlow(DisableSnmpFlow):
+    def __init__(self, cli_handler, resource_config, logger):
+        """
+
+        :param cli_handler:
+        :param resource_config:
+        :param logger:
+        """
+        super(CumulusLinuxDisableSnmpFlow, self).__init__(cli_handler=cli_handler, logger=logger)
+        self._resource_config = resource_config
+
     def execute_flow(self, snmp_parameters):
         """
 
@@ -41,7 +51,13 @@ class CumulusLinuxDisableSnmpFlow(DisableSnmpFlow):
         commit_actions = CommitActions(cli_service=cli_service, logger=self._logger)
 
         try:
-            output = snmp_v2_actions.remove_listening_address()
+            if self._resource_config.vrf_management_name:
+                output = snmp_v2_actions.remove_listening_address_with_vrf(
+                    vrf_management_name=self._resource_config.vrf_management_name,
+                    ip_address=self._resource_config.address)
+            else:
+                output = snmp_v2_actions.remove_listening_address()
+
             output += snmp_v2_actions.disable_snmp(snmp_community=snmp_community)
             output += snmp_v2_actions.remove_view()
             output += commit_actions.commit()
@@ -63,7 +79,13 @@ class CumulusLinuxDisableSnmpFlow(DisableSnmpFlow):
         commit_actions = CommitActions(cli_service=cli_service, logger=self._logger)
 
         try:
-            output = snmp_v3_actions.remove_listening_address()
+            if self._resource_config.vrf_management_name:
+                output = snmp_v3_actions.remove_listening_address_with_vrf(
+                    vrf_management_name=self._resource_config.vrf_management_name,
+                    ip_address=self._resource_config.address)
+            else:
+                output = snmp_v3_actions.remove_listening_address()
+
             output += snmp_v3_actions.disable_snmp(snmp_user=snmp_parameters.snmp_user)
             output += snmp_v3_actions.remove_view()
             output += commit_actions.commit()
