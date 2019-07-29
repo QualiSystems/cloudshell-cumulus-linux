@@ -29,6 +29,21 @@ class BaseSnmpActions(object):
                                        action_map=action_map,
                                        error_map=error_map).execute_command()
 
+    def add_listening_address_with_vrf(self, vrf_management_name, ip_address, action_map=None, error_map=None):
+        """
+
+        :param vrf_management_name:
+        :param ip_address:
+        :param action_map:
+        :param error_map:
+        :return:
+        """
+        return CommandTemplateExecutor(cli_service=self._cli_service,
+                                       command_template=enable_disable_snmp.ADD_LISTENING_ADDRESS_WITH_VRF,
+                                       action_map=action_map,
+                                       error_map=error_map).execute_command(vrf_name=vrf_management_name,
+                                                                            ip_address=ip_address)
+
     def create_view(self, view_name=DEFAULT_VIEW_NAME, action_map=None, error_map=None):
         """
 
@@ -53,6 +68,21 @@ class BaseSnmpActions(object):
                                        command_template=enable_disable_snmp.REMOVE_LISTENING_ADDRESS,
                                        action_map=action_map,
                                        error_map=error_map).execute_command()
+
+    def remove_listening_address_with_vrf(self, vrf_management_name, ip_address, action_map=None, error_map=None):
+        """
+
+        :param vrf_management_name:
+        :param ip_address:
+        :param action_map:
+        :param error_map:
+        :return:
+        """
+        return CommandTemplateExecutor(cli_service=self._cli_service,
+                                       command_template=enable_disable_snmp.REMOVE_LISTENING_ADDRESS_WITH_VRF,
+                                       action_map=action_map,
+                                       error_map=error_map).execute_command(vrf_name=vrf_management_name,
+                                                                            ip_address=ip_address)
 
     def remove_view(self, view_name=DEFAULT_VIEW_NAME, action_map=None, error_map=None):
         """
