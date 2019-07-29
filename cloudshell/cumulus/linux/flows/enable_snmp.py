@@ -15,6 +15,16 @@ class CumulusLinuxEnableSnmpFlow(EnableSnmpFlow):
     SNMP_WAITING_TIMEOUT = 5 * 60
     SNMP_WAITING_INTERVAL = 5
 
+    def __init__(self, cli_handler, resource_config, logger):
+        """
+
+        :param cli_handler:
+        :param resource_config:
+        :param logger:
+        """
+        super(CumulusLinuxEnableSnmpFlow, self).__init__(cli_handler=cli_handler, logger=logger)
+        self._resource_config = resource_config
+
     def execute_flow(self, snmp_parameters):
         """
 
@@ -63,7 +73,13 @@ class CumulusLinuxEnableSnmpFlow(EnableSnmpFlow):
         commit_actions = CommitActions(cli_service=cli_service, logger=self._logger)
 
         try:
-            output = snmp_v2_actions.add_listening_address()
+            if self._resource_config.vrf_management_name:
+                output = snmp_v2_actions.add_listening_address_with_vrf(
+                    vrf_management_name=self._resource_config.vrf_management_name,
+                    ip_address=self._resource_config.address)
+            else:
+                output = snmp_v2_actions.add_listening_address()
+
             output += snmp_v2_actions.create_view()
             output += snmp_v2_actions.enable_snmp(snmp_community=snmp_community)
             output += commit_actions.commit()
@@ -86,7 +102,13 @@ class CumulusLinuxEnableSnmpFlow(EnableSnmpFlow):
         commit_actions = CommitActions(cli_service=cli_service, logger=self._logger)
 
         try:
-            output = snmp_v3_actions.add_listening_address()
+            if self._resource_config.vrf_management_name:
+                output = snmp_v3_actions.add_listening_address_with_vrf(
+                    vrf_management_name=self._resource_config.vrf_management_name,
+                    ip_address=self._resource_config.address)
+            else:
+                output = snmp_v3_actions.add_listening_address()
+
             output += snmp_v3_actions.create_view()
             output += snmp_v3_actions.enable_snmp(snmp_user=snmp_parameters.snmp_user,
                                                   snmp_password=snmp_parameters.snmp_password,

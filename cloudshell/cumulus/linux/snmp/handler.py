@@ -20,11 +20,15 @@ class CumulusLinuxSnmpHandler(SnmpHandler):
 
         :return:
         """
-        return CumulusLinuxEnableSnmpFlow(cli_handler=self.cli_handler, logger=self._logger)
+        return CumulusLinuxEnableSnmpFlow(cli_handler=self.cli_handler,
+                                          resource_config=self.resource_config,
+                                          logger=self._logger)
 
     def _create_disable_flow(self):
         """
 
         :return:
         """
-        return CumulusLinuxDisableSnmpFlow(cli_handler=self.cli_handler, logger=self._logger)
+        return CumulusLinuxDisableSnmpFlow(cli_handler=self.cli_handler,
+                                           resource_config=self.resource_config,
+                                           logger=self._logger)
