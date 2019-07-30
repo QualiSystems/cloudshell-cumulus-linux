@@ -13,7 +13,10 @@ class TestCumulusLinuxdisableSnmpFlow(unittest.TestCase):
     def setUp(self):
         self.cli_handler = mock.MagicMock()
         self.logger = mock.MagicMock()
-        self.disable_snmp_flow = CumulusLinuxDisableSnmpFlow(cli_handler=self.cli_handler, logger=self.logger)
+        self.resource_config = mock.MagicMock()
+        self.disable_snmp_flow = CumulusLinuxDisableSnmpFlow(cli_handler=self.cli_handler,
+                                                             resource_config=self.resource_config,
+                                                             logger=self.logger)
 
     def test_execute_flow_calls_disable_snmp_v2(self):
         """Check that method will call "_disable_snmp_v2" method if snmp_parameters is SNMP v2"""
@@ -81,12 +84,33 @@ class TestCumulusLinuxdisableSnmpFlow(unittest.TestCase):
         snmp_action_class.return_value = snmp_actions
         commit_actions_class.return_value = commit_actions
         self.disable_snmp_flow._wait_for_snmp_service = mock.MagicMock()
-
+        self.resource_config.vrf_management_name = ""
         # act
         self.disable_snmp_flow._disable_snmp_v2(cli_service=cli_service, snmp_parameters=snmp_parameters)
-
         # verify
         snmp_actions.remove_listening_address.assert_called_once_with()
+        snmp_actions.remove_view.assert_called_once_with()
+        snmp_actions.disable_snmp.assert_called_once_with(snmp_community=snmp_parameters.snmp_community)
+        commit_actions.commit.assert_called_once_with()
+
+    @mock.patch("cloudshell.cumulus.linux.flows.disable_snmp.CommitActions")
+    @mock.patch("cloudshell.cumulus.linux.flows.disable_snmp.SnmpV2Actions")
+    def test_disable_snmp_v2_with_vfr(self, snmp_action_class, commit_actions_class):
+        """Check that method will call correct commands on SNMP and Commit actions"""
+        snmp_parameters = mock.MagicMock()
+        cli_service = mock.MagicMock()
+        snmp_actions = mock.MagicMock()
+        commit_actions = mock.MagicMock()
+        snmp_action_class.return_value = snmp_actions
+        commit_actions_class.return_value = commit_actions
+        self.disable_snmp_flow._wait_for_snmp_service = mock.MagicMock()
+        # act
+        self.disable_snmp_flow._disable_snmp_v2(cli_service=cli_service, snmp_parameters=snmp_parameters)
+        # verify
+        snmp_actions.remove_listening_address_with_vrf.assert_called_once_with(
+            vrf_management_name=self.resource_config.vrf_management_name,
+            ip_address=self.resource_config.address)
+
         snmp_actions.remove_view.assert_called_once_with()
         snmp_actions.disable_snmp.assert_called_once_with(snmp_community=snmp_parameters.snmp_community)
         commit_actions.commit.assert_called_once_with()
@@ -102,12 +126,33 @@ class TestCumulusLinuxdisableSnmpFlow(unittest.TestCase):
         snmp_action_class.return_value = snmp_actions
         commit_actions_class.return_value = commit_actions
         self.disable_snmp_flow._wait_for_snmp_service = mock.MagicMock()
-
+        self.resource_config.vrf_management_name = ""
         # act
         self.disable_snmp_flow._disable_snmp_v3(cli_service=cli_service, snmp_parameters=snmp_parameters)
-
         # verify
         snmp_actions.remove_listening_address.assert_called_once_with()
+        snmp_actions.remove_view.assert_called_once_with()
+        snmp_actions.disable_snmp.assert_called_once_with(snmp_user=snmp_parameters.snmp_user)
+        commit_actions.commit.assert_called_once_with()
+
+    @mock.patch("cloudshell.cumulus.linux.flows.disable_snmp.CommitActions")
+    @mock.patch("cloudshell.cumulus.linux.flows.disable_snmp.SnmpV3Actions")
+    def test_disable_snmp_v3_with_vfr(self, snmp_action_class, commit_actions_class):
+        """Check that method will call correct commands on SNMP and Commit actions"""
+        snmp_parameters = mock.MagicMock()
+        cli_service = mock.MagicMock()
+        snmp_actions = mock.MagicMock()
+        commit_actions = mock.MagicMock()
+        snmp_action_class.return_value = snmp_actions
+        commit_actions_class.return_value = commit_actions
+        self.disable_snmp_flow._wait_for_snmp_service = mock.MagicMock()
+        # act
+        self.disable_snmp_flow._disable_snmp_v3(cli_service=cli_service, snmp_parameters=snmp_parameters)
+        # verify
+        snmp_actions.remove_listening_address_with_vrf.assert_called_once_with(
+            vrf_management_name=self.resource_config.vrf_management_name,
+            ip_address=self.resource_config.address)
+
         snmp_actions.remove_view.assert_called_once_with()
         snmp_actions.disable_snmp.assert_called_once_with(snmp_user=snmp_parameters.snmp_user)
         commit_actions.commit.assert_called_once_with()
