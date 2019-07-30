@@ -13,7 +13,10 @@ class TestCumulusLinuxEnableSnmpFlow(unittest.TestCase):
     def setUp(self):
         self.cli_handler = mock.MagicMock()
         self.logger = mock.MagicMock()
-        self.enable_snmp_flow = CumulusLinuxEnableSnmpFlow(cli_handler=self.cli_handler, logger=self.logger)
+        self.resource_config = mock.MagicMock()
+        self.enable_snmp_flow = CumulusLinuxEnableSnmpFlow(cli_handler=self.cli_handler,
+                                                           resource_config=self.resource_config,
+                                                           logger=self.logger)
 
     def test_execute_flow_calls_enable_snmp_v2(self):
         """Check that method will call "_enable_snmp_v2" method if snmp_parameters is SNMP v2"""
@@ -80,6 +83,7 @@ class TestCumulusLinuxEnableSnmpFlow(unittest.TestCase):
         commit_actions = mock.MagicMock()
         snmp_action_class.return_value = snmp_actions
         commit_actions_class.return_value = commit_actions
+        self.resource_config.vrf_management_name = ""
         self.enable_snmp_flow._wait_for_snmp_service = mock.MagicMock()
 
         # act
@@ -87,6 +91,31 @@ class TestCumulusLinuxEnableSnmpFlow(unittest.TestCase):
 
         # verify
         snmp_actions.add_listening_address.assert_called_once_with()
+        snmp_actions.create_view.assert_called_once_with()
+        snmp_actions.enable_snmp.assert_called_once_with(snmp_community=snmp_parameters.snmp_community)
+        commit_actions.commit.assert_called_once_with()
+        self.enable_snmp_flow._wait_for_snmp_service.assert_called_once_with(snmp_actions=snmp_actions)
+
+    @mock.patch("cloudshell.cumulus.linux.flows.enable_snmp.CommitActions")
+    @mock.patch("cloudshell.cumulus.linux.flows.enable_snmp.SnmpV2Actions")
+    def test_enable_snmp_v2_with_vrf(self, snmp_action_class, commit_actions_class):
+        """Check that method will call correct commands on SNMP and Commit actions"""
+        snmp_parameters = mock.MagicMock()
+        cli_service = mock.MagicMock()
+        snmp_actions = mock.MagicMock()
+        commit_actions = mock.MagicMock()
+        snmp_action_class.return_value = snmp_actions
+        commit_actions_class.return_value = commit_actions
+        self.enable_snmp_flow._wait_for_snmp_service = mock.MagicMock()
+
+        # act
+        self.enable_snmp_flow._enable_snmp_v2(cli_service=cli_service, snmp_parameters=snmp_parameters)
+
+        # verify
+        snmp_actions.add_listening_address_with_vrf.assert_called_once_with(
+            ip_address=self.resource_config.address,
+            vrf_management_name=self.resource_config.vrf_management_name)
+
         snmp_actions.create_view.assert_called_once_with()
         snmp_actions.enable_snmp.assert_called_once_with(snmp_community=snmp_parameters.snmp_community)
         commit_actions.commit.assert_called_once_with()
@@ -103,12 +132,40 @@ class TestCumulusLinuxEnableSnmpFlow(unittest.TestCase):
         snmp_action_class.return_value = snmp_actions
         commit_actions_class.return_value = commit_actions
         self.enable_snmp_flow._wait_for_snmp_service = mock.MagicMock()
-
+        self.resource_config.vrf_management_name = ""
         # act
         self.enable_snmp_flow._enable_snmp_v3(cli_service=cli_service, snmp_parameters=snmp_parameters)
 
         # verify
         snmp_actions.add_listening_address.assert_called_once_with()
+        snmp_actions.create_view.assert_called_once_with()
+        snmp_actions.enable_snmp.assert_called_once_with(snmp_user=snmp_parameters.snmp_user,
+                                                         snmp_password=snmp_parameters.snmp_password,
+                                                         snmp_priv_key=snmp_parameters.snmp_private_key,
+                                                         snmp_auth_proto=snmp_parameters.auth_protocol,
+                                                         snmp_priv_proto=snmp_parameters.private_key_protocol)
+        commit_actions.commit.assert_called_once_with()
+        self.enable_snmp_flow._wait_for_snmp_service.assert_called_once_with(snmp_actions=snmp_actions)
+
+    @mock.patch("cloudshell.cumulus.linux.flows.enable_snmp.CommitActions")
+    @mock.patch("cloudshell.cumulus.linux.flows.enable_snmp.SnmpV3Actions")
+    def test_enable_snmp_v3_with_vrf(self, snmp_action_class, commit_actions_class):
+        """Check that method will call correct commands on SNMP and Commit actions"""
+        snmp_parameters = mock.MagicMock()
+        cli_service = mock.MagicMock()
+        snmp_actions = mock.MagicMock()
+        commit_actions = mock.MagicMock()
+        snmp_action_class.return_value = snmp_actions
+        commit_actions_class.return_value = commit_actions
+        self.enable_snmp_flow._wait_for_snmp_service = mock.MagicMock()
+        # act
+        self.enable_snmp_flow._enable_snmp_v3(cli_service=cli_service, snmp_parameters=snmp_parameters)
+
+        # verify
+        snmp_actions.add_listening_address_with_vrf.assert_called_once_with(
+            ip_address=self.resource_config.address,
+            vrf_management_name=self.resource_config.vrf_management_name)
+
         snmp_actions.create_view.assert_called_once_with()
         snmp_actions.enable_snmp.assert_called_once_with(snmp_user=snmp_parameters.snmp_user,
                                                          snmp_password=snmp_parameters.snmp_password,
