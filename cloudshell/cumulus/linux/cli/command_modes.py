@@ -30,19 +30,10 @@ class RootCommandMode(CommandMode):
             enter_action_map=self.enter_action_map(),
         )
 
-    @property
-    def root_password(self):
-        if not self._root_password:
-            self._root_password = self._api.DecryptPassword(
-                self.resource_config.enable_password
-            ).Value
-
-        return self._root_password
-
     def enter_action_map(self) -> dict:
         return {
             r"[Pp]assword": lambda session, logger: session.send_line(
-                self.root_password, logger
+                self.resource_config.enable_password, logger
             )
         }
 
