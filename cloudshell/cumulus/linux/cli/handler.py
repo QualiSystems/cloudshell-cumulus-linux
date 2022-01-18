@@ -3,6 +3,9 @@ from logging import Logger
 from cloudshell.cli.configurator import AbstractModeConfigurator
 from cloudshell.cli.service.cli import CLI
 from cloudshell.cli.service.command_mode_helper import CommandModeHelper
+from cloudshell.cli.service.session_pool_context_manager import (
+    SessionPoolContextManager,
+)
 from cloudshell.cli.service.session_pool_manager import SessionPoolManager
 from cloudshell.cli.session.ssh_session import SSHSession
 from cloudshell.cli.session.telnet_session import TelnetSession
@@ -22,7 +25,7 @@ def get_cli(resource_config: NetworkingResourceConfig) -> CLI:
     return CLI(session_pool=session_pool)
 
 
-class CumulusCliHandler(AbstractModeConfigurator):
+class CumulusCliConfigurator(AbstractModeConfigurator):
     REGISTERED_SESSIONS = (SSHSession, TelnetSession)
 
     def __init__(
@@ -42,3 +45,6 @@ class CumulusCliHandler(AbstractModeConfigurator):
     @property
     def root_mode(self) -> RootCommandMode:
         return self.modes[RootCommandMode]
+
+    def root_mode_service(self) -> SessionPoolContextManager:
+        return self.get_cli_service(self.root_mode)
