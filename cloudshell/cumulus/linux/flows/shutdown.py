@@ -1,13 +1,12 @@
+from cloudshell.shell.flows.state.basic_flow import StateFlow
+
+from cloudshell.cumulus.linux.cli.handler import CumulusCliConfigurator
 from cloudshell.cumulus.linux.command_actions.state import StateActions
-from cloudshell.devices.flows.cli_action_flows import ShutdownFlow
 
 
-class CumulusLinuxShutdownFlow(ShutdownFlow):
-    def execute_flow(self):
-        """
+class CumulusLinuxShutdownFlow(StateFlow):
+    _cli_configurator: CumulusCliConfigurator
 
-        :return:
-        """
-        with self._cli_handler.get_cli_service(self._cli_handler.root_mode) as cli_service:
-            state_actions = StateActions(cli_service=cli_service, logger=self._logger)
-            return state_actions.shutdown()
+    def shutdown(self):
+        with self._cli_configurator.root_mode_service() as cli_service:
+            return StateActions(cli_service, self._logger).shutdown()
