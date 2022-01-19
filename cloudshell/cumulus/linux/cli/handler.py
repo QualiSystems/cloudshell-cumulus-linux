@@ -7,8 +7,6 @@ from cloudshell.cli.service.session_pool_context_manager import (
     SessionPoolContextManager,
 )
 from cloudshell.cli.service.session_pool_manager import SessionPoolManager
-from cloudshell.cli.session.ssh_session import SSHSession
-from cloudshell.cli.session.telnet_session import TelnetSession
 from cloudshell.shell.standards.networking.resource_config import (
     NetworkingResourceConfig,
 )
@@ -26,8 +24,6 @@ def get_cli(resource_config: NetworkingResourceConfig) -> CLI:
 
 
 class CumulusCliConfigurator(AbstractModeConfigurator):
-    REGISTERED_SESSIONS = (SSHSession, TelnetSession)
-
     def __init__(
         self, cli: CLI, resource_config: NetworkingResourceConfig, logger: Logger
     ):
