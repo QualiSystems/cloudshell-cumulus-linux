@@ -64,32 +64,32 @@ class ConfigurationFlow(AbstractConfigurationFlow):
 
     @property
     def _file_system(self) -> str:
-        return "file://"
+        return "file"
 
     def _save_flow(
         self, folder_path: str, configuration_type: str, vrf_management_name: str | None
     ) -> None:
         with self._cli_configurator.root_mode_service() as cli_service:
-            system = SystemActions(cli_service, self._logger)
+            sys_act = SystemActions(cli_service, self._logger)
 
             self._logger.info("Creating backup files")
-            backup_dir = system.create_tmp_dir()
+            backup_dir = sys_act.create_tmp_dir()
             for conf_folder in CONF_FOLDERS:
-                system.copy_folder(src_folder=conf_folder, dst_folder=backup_dir)
+                sys_act.copy_folder(src_folder=conf_folder, dst_folder=backup_dir)
             for conf_file in CONF_FILES:
-                system.copy_file(src_file=conf_file, dst_folder=backup_dir)
+                sys_act.copy_file(src_file=conf_file, dst_folder=backup_dir)
 
             self._logger.info(
                 f"Compressing backup directory '{backup_dir}' to .tar archive"
             )
-            backup_file = system.create_tmp_file()
-            system.tar_compress_folder(compress_name=backup_file, folder=backup_dir)
+            backup_file = sys_act.create_tmp_file()
+            sys_act.tar_compress_folder(compress_name=backup_file, folder=backup_dir)
 
             self._logger.info(f"Uploading backup .tar archive '{backup_file}' via curl")
             if folder_path.startswith(self._local_path):
                 folder = self._get_folder_from_local_url(folder_path)
-                system.create_folder(folder)
-            system.curl_upload_file(file_path=backup_file, remote_url=folder_path)
+                sys_act.create_folder(folder)
+            sys_act.curl_upload_file(file_path=backup_file, remote_url=folder_path)
 
     def _restore_flow(
         self,
@@ -99,21 +99,21 @@ class ConfigurationFlow(AbstractConfigurationFlow):
         vrf_management_name: str | None,
     ) -> None:
         with self._cli_configurator.root_mode_service() as cli_service:
-            system = SystemActions(cli_service, self._logger)
+            sys_act = SystemActions(cli_service, self._logger)
 
             self._logger.info("Downloading backup files")
-            backup_file = system.create_tmp_file()
-            system.curl_download_file(remote_url=path, file_path=backup_file)
+            backup_file = sys_act.create_tmp_file()
+            sys_act.curl_download_file(remote_url=path, file_path=backup_file)
 
             self._logger.info("Uncompressing backup files to the system")
-            system.tar_uncompress_folder(compressed_file=backup_file, destination="/")
+            sys_act.tar_uncompress_folder(compressed_file=backup_file, destination="/")
 
             self._logger.info("Reloading all auto interfaces")
-            system.if_reload()
+            sys_act.if_reload()
 
             for service in SERVICES_TO_RESTART:
                 self._logger.info(f"Restarting '{service}' service")
-                system.restart_service(name=service)
+                sys_act.restart_service(name=service)
 
     def _get_path(self, path: str = "") -> str:
         path = super()._get_path(path)
@@ -122,11 +122,12 @@ class ConfigurationFlow(AbstractConfigurationFlow):
 
     @property
     def _local_path(self) -> str:
-        return f"{self._file_system}localhost/"
+        return f"{self._file_system}://localhost/"
 
     def _update_local_path(self, path: str) -> str:
         if path.startswith(self._file_system) and not path.startswith(self._local_path):
-            path = f"{self._local_path}{path[len(self._file_system):]}"
+            scheme_len = len(f"{self._file_system}://")
+            path = f"{self._local_path}{path[scheme_len:]}"
         return path
 
     def _get_folder_from_local_url(self, path: str) -> str:
