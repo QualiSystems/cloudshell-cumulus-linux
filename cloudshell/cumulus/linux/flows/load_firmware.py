@@ -1,27 +1,28 @@
+from logging import Logger
+
+from cloudshell.shell.flows.firmware.basic_flow import AbstractFirmwareFlow
+
+from cloudshell.cumulus.linux.cli.handler import CumulusCliConfigurator
 from cloudshell.cumulus.linux.command_actions.firmware import FirmwareActions
 from cloudshell.cumulus.linux.command_actions.system import SystemActions
-from cloudshell.devices.flows.cli_action_flows import LoadFirmwareFlow
 
 
-class CumulusLinuxLoadFirmwareFlow(LoadFirmwareFlow):
-    def execute_flow(self, path, vrf, timeout):
-        """
+class LoadFirmwareFlow(AbstractFirmwareFlow):
+    def __init__(self, logger: Logger, cli_configurator: CumulusCliConfigurator):
+        super().__init__(logger)
+        self._cli_configurator = cli_configurator
 
-        :param path:
-        :param vrf:
-        :param timeout:
-        :return:
-        """
-        with self._cli_handler.get_cli_service(self._cli_handler.root_mode) as cli_service:
-            system_actions = SystemActions(cli_service=cli_service, logger=self._logger)
-            firmware_actions = FirmwareActions(cli_service=cli_service, logger=self._logger)
+    def _load_firmware_flow(self, path: str, vrf_management_name: str, timeout) -> str:
+        with self._cli_configurator.root_mode_service() as cli_service:
+            sys_act = SystemActions(cli_service, self._logger)
+            firmware_act = FirmwareActions(cli_service, self._logger)
 
-            self._logger.info("Loading firmware: {}".format(path))
-            output = firmware_actions.load_firmware(image_path=path, timeout=timeout)
+            self._logger.info(f"Loading firmware: {path}")
+            output = firmware_act.load_firmware(path, timeout)
 
             try:
                 self._logger.info("Rebooting device...")
-                output += system_actions.reboot()
+                output += sys_act.reboot()
             except Exception:
                 self._logger.debug("Reboot session exception:", exc_info=True)
 
