@@ -1,34 +1,25 @@
-from cloudshell.cumulus.linux.flows.disable_snmp import CumulusLinuxDisableSnmpFlow
-from cloudshell.cumulus.linux.flows.enable_snmp import CumulusLinuxEnableSnmpFlow
-from cloudshell.devices.snmp_handler import SnmpHandler
+from __future__ import annotations
+
+from logging import Logger
+
+from cloudshell.shell.standards.networking.resource_config import (
+    NetworkingResourceConfig,
+)
+from cloudshell.snmp.snmp_configurator import EnableDisableSnmpConfigurator
+
+from cloudshell.cumulus.linux.cli.handler import CumulusCliConfigurator
+from cloudshell.cumulus.linux.flows.enable_disable_flow import (
+    EnableDisableFlowWithConfig,
+)
 
 
-class CumulusLinuxSnmpHandler(SnmpHandler):
-    def __init__(self, resource_config, logger, api, cli_handler):
-        """
-
-        :param resource_config:
-        :param logger:
-        :param api:
-        :param cli_handler:
-        """
-        super(CumulusLinuxSnmpHandler, self).__init__(resource_config, logger, api)
-        self.cli_handler = cli_handler
-
-    def _create_enable_flow(self):
-        """
-
-        :return:
-        """
-        return CumulusLinuxEnableSnmpFlow(cli_handler=self.cli_handler,
-                                          resource_config=self.resource_config,
-                                          logger=self._logger)
-
-    def _create_disable_flow(self):
-        """
-
-        :return:
-        """
-        return CumulusLinuxDisableSnmpFlow(cli_handler=self.cli_handler,
-                                           resource_config=self.resource_config,
-                                           logger=self._logger)
+class CumulusEnableDisableSnmpConfigurator(EnableDisableSnmpConfigurator):
+    def __init__(
+        self,
+        resource_config: NetworkingResourceConfig,
+        logger: Logger,
+        cli_configurator: CumulusCliConfigurator,
+    ):
+        # todo use old enable/disable flow for old versions?
+        flow = EnableDisableFlowWithConfig(cli_configurator, resource_config, logger)
+        super().__init__(flow, resource_config, logger)
