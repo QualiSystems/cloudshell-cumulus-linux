@@ -38,4 +38,5 @@ CURL_DOWNLOAD_FILE = CommandTemplate(
     "curl --insecure {remote_url} -o {file_path}", error_map=CURL_ERROR_MAP
 )
 
+SHUTDOWN = CommandTemplate("shutdown -h now", error_map=ERROR_MAP)
 REBOOT = CommandTemplate("reboot", error_map=ERROR_MAP)
