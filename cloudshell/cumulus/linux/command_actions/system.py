@@ -78,6 +78,9 @@ class SystemActions:
             self._cli_service, system.RESTART_SERVICE
         ).execute_command(name=name)
 
+    def shutdown(self) -> None:
+        CommandTemplateExecutor(self._cli_service, system.SHUTDOWN).execute_command()
+
     def reboot(self) -> str:
         return CommandTemplateExecutor(
             self._cli_service, system.REBOOT

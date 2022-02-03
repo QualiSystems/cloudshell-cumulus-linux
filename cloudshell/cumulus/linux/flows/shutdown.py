@@ -1,7 +1,7 @@
 from cloudshell.shell.flows.state.basic_flow import StateFlow
 
 from cloudshell.cumulus.linux.cli.handler import CumulusCliConfigurator
-from cloudshell.cumulus.linux.command_actions.state import StateActions
+from cloudshell.cumulus.linux.command_actions.system import SystemActions
 
 
 class CumulusLinuxShutdownFlow(StateFlow):
@@ -9,4 +9,4 @@ class CumulusLinuxShutdownFlow(StateFlow):
 
     def shutdown(self):
         with self._cli_configurator.root_mode_service() as cli_service:
-            return StateActions(cli_service, self._logger).shutdown()
+            return SystemActions(cli_service, self._logger).shutdown()
