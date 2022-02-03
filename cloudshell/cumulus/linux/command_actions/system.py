@@ -9,6 +9,7 @@ from cloudshell.cli.command_template.command_template_executor import (
 )
 from cloudshell.cli.service.cli_service import CliService
 
+from cloudshell.cumulus.linux.autoload.const import SNMP_CONF_PATH, SNMP_SERVICE_NAME
 from cloudshell.cumulus.linux.command_templates import system
 
 
@@ -85,3 +86,30 @@ class SystemActions:
         return CommandTemplateExecutor(
             self._cli_service, system.REBOOT
         ).execute_command()
+
+    def get_snmp_conf(self) -> str:
+        return (
+            CommandTemplateExecutor(
+                self._cli_service, system.READ_FILE, remove_prompt=True
+            )
+            .execute_command(file_path=SNMP_CONF_PATH)
+            .strip()
+        )
+
+    def upload_snmp_conf(self, text: str) -> None:
+        CommandTemplateExecutor(self._cli_service, system.WRITE_FILE).execute_command(
+            text=text, file_path=SNMP_CONF_PATH
+        )
+
+    def restart_snmp_server(self) -> None:
+        self.restart_service(SNMP_SERVICE_NAME)
+
+    def start_snmp_server(self) -> None:
+        CommandTemplateExecutor(
+            self._cli_service, system.START_SERVICE
+        ).execute_command(name=SNMP_SERVICE_NAME)
+
+    def stop_snmp_server(self) -> None:
+        CommandTemplateExecutor(self._cli_service, system.STOP_SERVICE).execute_command(
+            name=SNMP_SERVICE_NAME
+        )
