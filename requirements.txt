@@ -1,4 +1,5 @@
 cloudshell-snmp~=4.0
+cloudshell-snmp-autoload~=1.0
 cloudshell-cli~=4.0
 cloudshell-shell-connectivity-flow~=3.0
 cloudshell-shell-flows~=1.0

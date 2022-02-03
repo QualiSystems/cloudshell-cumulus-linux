@@ -27,9 +27,11 @@ TAR_UNCOMPRESS_FOLDER = CommandTemplate(
     "tar xvf {compressed_file} --overwrite --strip-components 1 -C {destination}",
     error_map=ERROR_MAP,
 )
-IF_RELOAD = CommandTemplate("ifreload -a", error_map=ERROR_MAP)
 
+IF_RELOAD = CommandTemplate("ifreload -a", error_map=ERROR_MAP)
 RESTART_SERVICE = CommandTemplate("service {name} restart", error_map=ERROR_MAP)
+START_SERVICE = CommandTemplate("service {name} start", error_map=ERROR_MAP)
+STOP_SERVICE = CommandTemplate("service {name} stop", error_map=ERROR_MAP)
 
 CURL_UPLOAD_FILE = CommandTemplate(
     "curl --insecure --upload-file {file_path} {remote_url}", error_map=CURL_ERROR_MAP
@@ -37,6 +39,9 @@ CURL_UPLOAD_FILE = CommandTemplate(
 CURL_DOWNLOAD_FILE = CommandTemplate(
     "curl --insecure {remote_url} -o {file_path}", error_map=CURL_ERROR_MAP
 )
+
+READ_FILE = CommandTemplate("cat {file_path}", error_map=ERROR_MAP)
+WRITE_FILE = CommandTemplate('printf "{text}" > {file_path}', error_map=ERROR_MAP)
 
 SHUTDOWN = CommandTemplate("shutdown -h now", error_map=ERROR_MAP)
 REBOOT = CommandTemplate("reboot", error_map=ERROR_MAP)
