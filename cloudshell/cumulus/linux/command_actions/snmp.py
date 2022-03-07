@@ -1,204 +1,130 @@
 import re
+from logging import Logger
 
-from cloudshell.cli.command_template.command_template_executor import CommandTemplateExecutor
-from cloudshell.cumulus.linux.command_templates import enable_disable_snmp
+import attr
+
+from cloudshell.cli.command_template.command_template_executor import (
+    CommandTemplateExecutor,
+)
+from cloudshell.cli.service.cli_service import CliService
 from cloudshell.snmp.snmp_parameters import SNMPV3Parameters
 
+from cloudshell.cumulus.linux.autoload.const import DEFAULT_VIEW_NAME
+from cloudshell.cumulus.linux.command_templates import enable_disable_snmp
 
-class BaseSnmpActions(object):
-    DEFAULT_VIEW_NAME = "Quali"
+SNMP_ACTIVE_PATTERN = re.compile(r"current[\s]+status[\s]+active", flags=re.I | re.M)
 
-    def __init__(self, cli_service, logger):
-        """
 
-        :param cli_service:
-        :param logger:
-        """
-        self._cli_service = cli_service
-        self._logger = logger
+@attr.s(auto_attribs=True, slots=True, frozen=True)
+class BaseSnmpActions:
+    _cli_service: CliService
+    _logger: Logger
 
-    def add_listening_address(self, action_map=None, error_map=None):
-        """
+    def add_listening_address(self) -> str:
+        return CommandTemplateExecutor(
+            self._cli_service, enable_disable_snmp.ADD_LISTENING_ADDRESS
+        ).execute_command()
 
-        :param action_map:
-        :param error_map:
-        :return:
-        """
-        return CommandTemplateExecutor(cli_service=self._cli_service,
-                                       command_template=enable_disable_snmp.ADD_LISTENING_ADDRESS,
-                                       action_map=action_map,
-                                       error_map=error_map).execute_command()
+    def add_listening_address_with_vrf(
+        self, vrf_management_name: str, ip_address: str
+    ) -> str:
+        return CommandTemplateExecutor(
+            self._cli_service, enable_disable_snmp.ADD_LISTENING_ADDRESS_WITH_VRF
+        ).execute_command(vrf_name=vrf_management_name, ip_address=ip_address)
 
-    def add_listening_address_with_vrf(self, vrf_management_name, ip_address, action_map=None, error_map=None):
-        """
+    def create_view(self, view_name: str = DEFAULT_VIEW_NAME) -> str:
+        return CommandTemplateExecutor(
+            self._cli_service, enable_disable_snmp.CREATE_VIEW
+        ).execute_command(view_name=view_name)
 
-        :param vrf_management_name:
-        :param ip_address:
-        :param action_map:
-        :param error_map:
-        :return:
-        """
-        return CommandTemplateExecutor(cli_service=self._cli_service,
-                                       command_template=enable_disable_snmp.ADD_LISTENING_ADDRESS_WITH_VRF,
-                                       action_map=action_map,
-                                       error_map=error_map).execute_command(vrf_name=vrf_management_name,
-                                                                            ip_address=ip_address)
+    def remove_listening_address(self) -> str:
+        return CommandTemplateExecutor(
+            self._cli_service, enable_disable_snmp.REMOVE_LISTENING_ADDRESS
+        ).execute_command()
 
-    def create_view(self, view_name=DEFAULT_VIEW_NAME, action_map=None, error_map=None):
-        """
+    def remove_listening_address_with_vrf(
+        self, vrf_management_name: str, ip_address: str
+    ) -> str:
+        return CommandTemplateExecutor(
+            self._cli_service, enable_disable_snmp.REMOVE_LISTENING_ADDRESS_WITH_VRF
+        ).execute_command(vrf_name=vrf_management_name, ip_address=ip_address)
 
-        :param view_name:
-        :param action_map:
-        :param error_map:
-        :return:
-        """
-        return CommandTemplateExecutor(cli_service=self._cli_service,
-                                       command_template=enable_disable_snmp.CREATE_VIEW,
-                                       action_map=action_map,
-                                       error_map=error_map).execute_command(view_name=view_name)
+    def remove_view(self, view_name: str = DEFAULT_VIEW_NAME) -> str:
+        return CommandTemplateExecutor(
+            self._cli_service, enable_disable_snmp.REMOVE_VIEW
+        ).execute_command(view_name=view_name)
 
-    def remove_listening_address(self, action_map=None, error_map=None):
-        """
-
-        :param action_map:
-        :param error_map:
-        :return:
-        """
-        return CommandTemplateExecutor(cli_service=self._cli_service,
-                                       command_template=enable_disable_snmp.REMOVE_LISTENING_ADDRESS,
-                                       action_map=action_map,
-                                       error_map=error_map).execute_command()
-
-    def remove_listening_address_with_vrf(self, vrf_management_name, ip_address, action_map=None, error_map=None):
-        """
-
-        :param vrf_management_name:
-        :param ip_address:
-        :param action_map:
-        :param error_map:
-        :return:
-        """
-        return CommandTemplateExecutor(cli_service=self._cli_service,
-                                       command_template=enable_disable_snmp.REMOVE_LISTENING_ADDRESS_WITH_VRF,
-                                       action_map=action_map,
-                                       error_map=error_map).execute_command(vrf_name=vrf_management_name,
-                                                                            ip_address=ip_address)
-
-    def remove_view(self, view_name=DEFAULT_VIEW_NAME, action_map=None, error_map=None):
-        """
-
-        :param view_name:
-        :param action_map:
-        :param error_map:
-        :return:
-        """
-        return CommandTemplateExecutor(cli_service=self._cli_service,
-                                       command_template=enable_disable_snmp.REMOVE_VIEW,
-                                       action_map=action_map,
-                                       error_map=error_map).execute_command(view_name=view_name)
-
-    def is_snmp_running(self, action_map=None, error_map=None):
-        """
-
-        :return:
-        """
-        snmp_status = CommandTemplateExecutor(cli_service=self._cli_service,
-                                              command_template=enable_disable_snmp.SHOW_SNMP_STATUS,
-                                              action_map=action_map,
-                                              error_map=error_map).execute_command()
-
-        return bool(re.search(r"current[\s]+status[\s]+active", snmp_status, flags=re.IGNORECASE | re.MULTILINE))
+    def is_snmp_running(self) -> bool:
+        snmp_status = CommandTemplateExecutor(
+            self._cli_service, enable_disable_snmp.SHOW_SNMP_STATUS
+        ).execute_command()
+        return bool(SNMP_ACTIVE_PATTERN.search(snmp_status))
 
 
 class SnmpV2Actions(BaseSnmpActions):
-    def enable_snmp(self, snmp_community, view_name=BaseSnmpActions.DEFAULT_VIEW_NAME, action_map=None, error_map=None):
-        """
+    def enable_snmp(
+        self,
+        snmp_community: str,
+        view_name: str = DEFAULT_VIEW_NAME,
+    ) -> str:
+        return CommandTemplateExecutor(
+            self._cli_service, enable_disable_snmp.ENABLE_SNMP_READ
+        ).execute_command(snmp_community=snmp_community, view_name=view_name)
 
-        :param snmp_community:
-        :param view_name:
-        :param action_map:
-        :param error_map:
-        :return:
-        """
-        return CommandTemplateExecutor(cli_service=self._cli_service,
-                                       command_template=enable_disable_snmp.ENABLE_SNMP_READ,
-                                       action_map=action_map,
-                                       error_map=error_map).execute_command(snmp_community=snmp_community,
-                                                                            view_name=view_name)
-
-    def disable_snmp(self, snmp_community, action_map=None, error_map=None):
-        """
-
-        :param snmp_community:
-        :param action_map:
-        :param error_map:
-        :return:
-        """
-        return CommandTemplateExecutor(cli_service=self._cli_service,
-                                       command_template=enable_disable_snmp.DISABLE_SNMP_READ,
-                                       action_map=action_map,
-                                       error_map=error_map).execute_command(snmp_community=snmp_community)
+    def disable_snmp(self, snmp_community: str) -> str:
+        return CommandTemplateExecutor(
+            self._cli_service, enable_disable_snmp.DISABLE_SNMP_READ
+        ).execute_command(snmp_community=snmp_community)
 
 
 class SnmpV3Actions(BaseSnmpActions):
-
     AUTH_COMMAND_MAP = {
         SNMPV3Parameters.AUTH_NO_AUTH: "auth-none",
         SNMPV3Parameters.AUTH_MD5: "auth-md5",
-        SNMPV3Parameters.AUTH_SHA: "auth-sha"
+        SNMPV3Parameters.AUTH_SHA: "auth-sha",
     }
 
     PRIV_COMMAND_MAP = {
         SNMPV3Parameters.PRIV_NO_PRIV: "",
         SNMPV3Parameters.PRIV_DES: "encrypt-des",
         SNMPV3Parameters.PRIV_AES128: "encrypt-aes",
-        # SNMPV3Parameters.PRIV_3DES: "",  # not supported by device
-        # SNMPV3Parameters.PRIV_AES192: "encrypt-aes",  # not supported by device
-        # SNMPV3Parameters.PRIV_AES256: "encrypt-aes"   # not supported by device
+        # SNMPV3Parameters.PRIV_3DES: "",  not supported by device
+        # SNMPV3Parameters.PRIV_AES192: "encrypt-aes",  not supported by device
+        # SNMPV3Parameters.PRIV_AES256: "encrypt-aes"   not supported by device
     }
 
-    def enable_snmp(self, snmp_user, snmp_password, snmp_priv_key, snmp_auth_proto, snmp_priv_proto,
-                    view_name=BaseSnmpActions.DEFAULT_VIEW_NAME, action_map=None, error_map=None):
-        """
-
-        :param snmp_user:
-        :param snmp_password:
-        :param snmp_priv_key:
-        :param snmp_auth_proto:
-        :param snmp_priv_proto:
-        :param view_name:
-        :param action_map:
-        :param error_map:
-        :return:
-        """
+    def enable_snmp(
+        self,
+        snmp_user: str,
+        snmp_password: str,
+        snmp_priv_key: str,
+        snmp_auth_proto: str,
+        snmp_priv_proto: str,
+        view_name: str = DEFAULT_VIEW_NAME,
+    ) -> str:
         try:
             auth_command_template = self.AUTH_COMMAND_MAP[snmp_auth_proto]
         except KeyError:
-            raise Exception("Authentication protocol {} is not supported".format(snmp_auth_proto))
+            msg = f"Authentication protocol {snmp_auth_proto} is not supported"
+            raise Exception(msg)
 
         try:
             priv_command_template = self.PRIV_COMMAND_MAP[snmp_priv_proto]
         except KeyError:
-            raise Exception("Privacy Protocol {} is not supported".format(snmp_priv_proto))
+            raise Exception(f"Privacy Protocol {snmp_priv_proto} is not supported")
 
-        return CommandTemplateExecutor(cli_service=self._cli_service,
-                                       command_template=enable_disable_snmp.ENABLE_SNMP_USER,
-                                       action_map=action_map,
-                                       error_map=error_map).execute_command(snmp_user=snmp_user,
-                                                                            snmp_auth_proto=auth_command_template,
-                                                                            snmp_password=snmp_password,
-                                                                            snmp_priv_proto=priv_command_template,
-                                                                            snmp_priv_key=snmp_priv_key,view_name=view_name)
+        return CommandTemplateExecutor(
+            self._cli_service, enable_disable_snmp.ENABLE_SNMP_USER
+        ).execute_command(
+            snmp_user=snmp_user,
+            snmp_auth_proto=auth_command_template,
+            snmp_password=snmp_password,
+            snmp_priv_proto=priv_command_template,
+            snmp_priv_key=snmp_priv_key,
+            view_name=view_name,
+        )
 
-    def disable_snmp(self, snmp_user, action_map=None, error_map=None):
-        """
-
-        :param snmp_user:
-        :param action_map:
-        :param error_map:
-        :return:
-        """
-        return CommandTemplateExecutor(cli_service=self._cli_service,
-                                       command_template=enable_disable_snmp.DISABLE_SNMP_USER,
-                                       action_map=action_map,
-                                       error_map=error_map).execute_command(snmp_user=snmp_user)
+    def disable_snmp(self, snmp_user: str) -> str:
+        return CommandTemplateExecutor(
+            self._cli_service, enable_disable_snmp.DISABLE_SNMP_USER
+        ).execute_command(snmp_user=snmp_user)
