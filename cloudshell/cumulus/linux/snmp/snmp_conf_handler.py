@@ -28,13 +28,13 @@ def _get_priv_proto_str(priv_proto: str) -> str:
     return priv_proto_str
 
 
-@attr.s(auto_attribs=True, slots=True)
+@attr.s(auto_attribs=True, slots=True, frozen=True)
 class SnmpConfigHandler:
     orig_text: str
     _lines: list[str] = attr.ib(default=[], init=False)
 
     def __attrs_post_init__(self):
-        self._lines = self.orig_text.splitlines()
+        self._lines[:] = self.orig_text.splitlines()
 
     def get_new_conf(self) -> str:
         return "\n".join(self._lines) + "\n"
