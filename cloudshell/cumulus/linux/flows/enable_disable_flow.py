@@ -28,7 +28,7 @@ from cloudshell.cumulus.linux.command_actions.snmp import (
     SnmpV3Actions,
 )
 from cloudshell.cumulus.linux.command_actions.system import SystemActions
-from cloudshell.cumulus.linux.snmp.snmp_conf import SnmpConfigHandler
+from cloudshell.cumulus.linux.snmp.snmp_conf_handler import SnmpConfigHandler
 
 SNMP_PARAM_TYPES = Union[SNMPReadParameters, SNMPWriteParameters, SNMPV3Parameters]
 
