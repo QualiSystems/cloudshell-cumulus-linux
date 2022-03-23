@@ -9,12 +9,12 @@ from cloudshell.cli.command_template.command_template_executor import (
 )
 from cloudshell.cli.service.cli_service import CliService
 
-from cloudshell.cumulus.linux.autoload.const import (
+from cloudshell.cumulus.linux.command_templates import system
+from cloudshell.cumulus.linux.const import (
     IFACE_CONF_PATH,
     SNMP_CONF_PATH,
     SNMP_SERVICE_NAME,
 )
-from cloudshell.cumulus.linux.command_templates import system
 
 
 @attr.s(auto_attribs=True, slots=True, frozen=True)
