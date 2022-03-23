@@ -8,7 +8,7 @@ from typing_extensions import Literal
 
 from cloudshell.snmp.snmp_parameters import SNMPV3Parameters
 
-from cloudshell.cumulus.linux.autoload.const import DEFAULT_VIEW_NAME
+from cloudshell.cumulus.linux.const import DEFAULT_VIEW_NAME
 
 
 class AttrName:

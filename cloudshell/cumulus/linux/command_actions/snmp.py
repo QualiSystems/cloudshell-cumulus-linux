@@ -9,8 +9,8 @@ from cloudshell.cli.command_template.command_template_executor import (
 from cloudshell.cli.service.cli_service import CliService
 from cloudshell.snmp.snmp_parameters import SNMPV3Parameters
 
-from cloudshell.cumulus.linux.autoload.const import DEFAULT_VIEW_NAME
 from cloudshell.cumulus.linux.command_templates import enable_disable_snmp
+from cloudshell.cumulus.linux.const import DEFAULT_VIEW_NAME
 
 SNMP_ACTIVE_PATTERN = re.compile(r"current[\s]+status[\s]+active", flags=re.I | re.M)
 
