@@ -1,6 +1,6 @@
 from cloudshell.snmp.autoload.generic_snmp_autoload import GenericSNMPAutoload
 
-from cloudshell.cumulus.linux.snmp.snmp_entitiy_table import CumulusSnmpEntityTable
+from cloudshell.cumulus.linux.snmp.snmp_if_table import CumulusSnmpIfTable
 from cloudshell.cumulus.linux.snmp.system_info import CumulusSystemInfo
 
 
@@ -12,11 +12,10 @@ class CumulusSNMPAutoload(GenericSNMPAutoload):
         return self._system_info
 
     @property
-    def entity_table_service(self):
-        if not self._entity_table:
-            self._entity_table = CumulusSnmpEntityTable(
-                snmp_handler=self.snmp_handler,
-                logger=self.logger,
-                if_table=self.if_table_service,
+    def if_table_service(self):
+        if not self._if_table:
+            self._if_table = CumulusSnmpIfTable(
+                snmp_handler=self.snmp_handler, logger=self.logger
             )
-        return self._entity_table
+
+        return self._if_table
