@@ -56,6 +56,7 @@ class CumulusConnectivityFlow(AbstractConnectivityFlow):
                 else:
                     vlan_handler = VlanConfHandler(conf_text)
 
+                vlan_handler.prepare_bridge()
                 if action.connection_params.mode is ConnectionModeEnum.ACCESS:
                     vlan_handler.add_access_vlan(port_name, vlan_str)
                 else:

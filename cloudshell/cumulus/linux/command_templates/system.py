@@ -40,7 +40,8 @@ CURL_DOWNLOAD_FILE = CommandTemplate(
     "curl --insecure {remote_url} -o {file_path}", error_map=CURL_ERROR_MAP
 )
 
-READ_FILE = CommandTemplate("cat {file_path}", error_map=ERROR_MAP)
+# if file don't have new line at the end last line will be lost when we remove prompt
+READ_FILE = CommandTemplate("cat {file_path} && echo", error_map=ERROR_MAP)
 WRITE_FILE = CommandTemplate('printf "{text}" > {file_path}', error_map=ERROR_MAP)
 
 SHUTDOWN = CommandTemplate("shutdown -h now", error_map=ERROR_MAP)

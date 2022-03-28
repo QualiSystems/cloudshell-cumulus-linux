@@ -19,7 +19,7 @@ class AbstractVlanConfHandler:
 
     @property
     def text(self) -> str:
-        return self.conf.text
+        return f"{self.conf.text}\n"
 
     @property
     def orig_text(self) -> str:
