@@ -5,14 +5,14 @@ from logging import Logger
 from cloudshell.shell.core.driver_context import AutoLoadDetails
 from cloudshell.shell.flows.autoload.basic_flow import AbstractAutoloadFlow
 from cloudshell.shell.standards.networking.autoload_model import NetworkingResourceModel
+from cloudshell.snmp.snmp_configurator import EnableDisableSnmpConfigurator
 
-from cloudshell.cumulus.linux.snmp.handler import CumulusEnableDisableSnmpConfigurator
 from cloudshell.cumulus.linux.snmp.snmp_autoload import CumulusSNMPAutoload
 
 
 class AutoloadFlow(AbstractAutoloadFlow):
     def __init__(
-        self, logger: Logger, snmp_configurator: CumulusEnableDisableSnmpConfigurator
+        self, logger: Logger, snmp_configurator: EnableDisableSnmpConfigurator
     ):
         super().__init__(logger)
         self._snmp_configurator = snmp_configurator

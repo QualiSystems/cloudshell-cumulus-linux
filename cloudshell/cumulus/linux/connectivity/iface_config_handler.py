@@ -19,7 +19,6 @@ class SettingName:
 
 @attr.s(auto_attribs=True, slots=True, repr=False)
 class Setting:
-    PATTERN: ClassVar[re.Pattern] = re.compile(r"\s{4}(?P<name>\S+)(\s(\S+))+")
     priv_text: str
     iface: IfaceSection
     _text: str = attr.ib(default="", init=False)
