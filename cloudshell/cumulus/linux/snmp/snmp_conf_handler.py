@@ -148,7 +148,6 @@ class SnmpConfigHandler:
     def _get_rwuser_value_str(
         username: str, auth_proto: str, priv_proto: str, view_name: str
     ) -> str:
-        # todo cs-snmp works differently - based on password and key, not protocols
         if auth_proto == SNMPV3Parameters.AUTH_NO_AUTH:
             auth = "noauth"
         else:
