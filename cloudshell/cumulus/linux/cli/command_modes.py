@@ -21,7 +21,6 @@ class RootCommandMode(CommandMode):
 
     def __init__(self, resource_config: NetworkingResourceConfig):
         self.resource_config = resource_config
-        self._root_password = None
 
         super().__init__(
             self.PROMPT,

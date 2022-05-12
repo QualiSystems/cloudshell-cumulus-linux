@@ -40,7 +40,8 @@ class CumulusConnectivityFlow(AbstractConnectivityFlow):
         self._resource_config = resource_config
         self._cli_configurator = cli_configurator
 
-    def _get_port_name(self, action: ConnectivityActionModel) -> str:
+    @staticmethod
+    def _get_port_name(action: ConnectivityActionModel) -> str:
         return action.action_target.name.split("/")[-1]
 
     def _set_vlan(self, action: ConnectivityActionModel) -> ConnectivityActionResult:
