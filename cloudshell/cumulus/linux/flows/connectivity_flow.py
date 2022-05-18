@@ -19,6 +19,7 @@ from cloudshell.shell.standards.networking.resource_config import (
 
 from cloudshell.cumulus.linux.cli.handler import CumulusCliConfigurator
 from cloudshell.cumulus.linux.command_actions.system import SystemActions
+from cloudshell.cumulus.linux.command_templates import CommandError
 from cloudshell.cumulus.linux.connectivity.vlan_config_handler import (
     VlanConfHandler,
     VlanQinqConfHandler,
@@ -69,7 +70,11 @@ class CumulusConnectivityFlow(AbstractConnectivityFlow):
                     vlan_handler.add_trunk_vlan(port_name, vlan_list)
 
                 sys_actions.upload_iface_conf(vlan_handler.text)
-                sys_actions.if_reload()
+                try:
+                    sys_actions.if_reload()
+                except CommandError:
+                    sys_actions.upload_iface_conf(vlan_handler.orig_text)
+                    raise
         return ConnectivityActionResult.success_result(action, "Success")
 
     def _remove_vlan(self, action: ConnectivityActionModel) -> ConnectivityActionResult:
@@ -90,5 +95,9 @@ class CumulusConnectivityFlow(AbstractConnectivityFlow):
                     vlan_handler.remove_trunk_vlan(port_name)
 
                 sys_actions.upload_iface_conf(vlan_handler.text)
-                sys_actions.if_reload()
+                try:
+                    sys_actions.if_reload()
+                except CommandError:
+                    sys_actions.upload_iface_conf(vlan_handler.orig_text)
+                    raise
         return ConnectivityActionResult.success_result(action, "Success")

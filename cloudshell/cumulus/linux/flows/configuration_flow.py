@@ -14,6 +14,7 @@ from cloudshell.shell.standards.networking.resource_config import (
 
 from cloudshell.cumulus.linux.cli.handler import CumulusCliConfigurator
 from cloudshell.cumulus.linux.command_actions.system import SystemActions
+from cloudshell.cumulus.linux.command_templates import CommandError
 
 CONF_FOLDERS = (
     "/etc/network/",
@@ -82,20 +83,7 @@ class ConfigurationFlow(AbstractConfigurationFlow):
     ) -> str | None:
         with self._cli_configurator.root_mode_service() as cli_service:
             sys_act = SystemActions(cli_service, self._logger)
-
-            self._logger.info("Creating backup files")
-            backup_dir = sys_act.create_tmp_dir()
-            for conf_folder in CONF_FOLDERS:
-                sys_act.copy_folder(src_folder=conf_folder, dst_folder=backup_dir)
-            for conf_file in CONF_FILES:
-                sys_act.copy_file(src_file=conf_file, dst_folder=backup_dir)
-
-            self._logger.info(
-                f"Compressing backup directory '{backup_dir}' to .tar archive"
-            )
-            backup_file = sys_act.create_tmp_file()
-            sys_act.tar_compress_folder(compress_name=backup_file, folder=backup_dir)
-
+            backup_file = self._backup_to_tar_file(sys_act)
             self._logger.info(f"Uploading backup .tar archive '{backup_file}' via curl")
             if isinstance(file_dst_url, LocalFileURL):
                 folder = file_dst_url.get_folder()
@@ -115,18 +103,46 @@ class ConfigurationFlow(AbstractConfigurationFlow):
         with self._cli_configurator.root_mode_service() as cli_service:
             sys_act = SystemActions(cli_service, self._logger)
 
+            self._logger.info("Backup current state")
+            backup_tar_file = self._backup_to_tar_file(sys_act)
+
             self._logger.info("Downloading backup files")
             backup_file = sys_act.create_tmp_file()
             sys_act.curl_download_file(
                 remote_url=str(config_path), file_path=backup_file
             )
+            self._logger.info("Start uncompress backup files to the system")
+            sys_act.tar_uncompress_folder(backup_file, "/")
 
-            self._logger.info("Uncompressing backup files to the system")
-            sys_act.tar_uncompress_folder(compressed_file=backup_file, destination="/")
+            try:
+                self._restart_services(sys_act)
+            except CommandError:
+                self._logger.error(
+                    "Failed to start services after restoring config. "
+                    "Start rollback previous state"
+                )
+                sys_act.tar_uncompress_folder(backup_tar_file, "/")
+                self._restart_services(sys_act)
+                raise
 
-            self._logger.info("Reloading all auto interfaces")
-            sys_act.if_reload()
+    def _backup_to_tar_file(self, sys_act: SystemActions) -> str:
+        self._logger.info("Creating backup files")
+        backup_dir = sys_act.create_tmp_dir()
+        for conf_folder in CONF_FOLDERS:
+            sys_act.copy_folder(src_folder=conf_folder, dst_folder=backup_dir)
+        for conf_file in CONF_FILES:
+            sys_act.copy_file(src_file=conf_file, dst_folder=backup_dir)
 
-            for service in SERVICES_TO_RESTART:
-                self._logger.info(f"Restarting '{service}' service")
-                sys_act.restart_service(name=service)
+        self._logger.info(
+            f"Compressing backup directory '{backup_dir}' to .tar archive"
+        )
+        backup_file = sys_act.create_tmp_file()
+        sys_act.tar_compress_folder(compress_name=backup_file, folder=backup_dir)
+        return backup_file
+
+    def _restart_services(self, sys_act: SystemActions):
+        self._logger.info("Reloading all auto interfaces")
+        sys_act.if_reload()
+        for service in SERVICES_TO_RESTART:
+            self._logger.info(f"Restarting '{service}' service")
+            sys_act.restart_service(name=service)
