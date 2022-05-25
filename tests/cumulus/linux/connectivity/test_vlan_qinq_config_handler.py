@@ -50,7 +50,7 @@ def test_vlan_default_bridge(conf_text, expected_conf_text):
 
     conf.prepare_bridge()
 
-    assert conf.text == expected_conf_text
+    assert conf.text == expected_conf_text + "\n"
     assert conf.orig_text == conf_text
 
 
@@ -138,7 +138,7 @@ def test_add_vlan_access(conf_text, map_port_vlan, expected_conf_text):
     for port_name, vlan_id in map_port_vlan.items():
         conf.add_access_vlan(port_name, vlan_id)
 
-    assert conf.text == expected_conf_text
+    assert conf.text == expected_conf_text + "\n"
     assert conf.orig_text == conf_text
 
 
@@ -390,7 +390,7 @@ def test_remove_vlan_access(conf_text, port_names, expected_conf_text):
     for port_name in port_names:
         conf.remove_access_vlan(port_name)
 
-    assert conf.text == expected_conf_text
+    assert conf.text == expected_conf_text + "\n"
     assert conf.orig_text == conf_text
 
 
@@ -478,7 +478,7 @@ def test_add_vlan_trunk(conf_text, map_port_vlan, expected_conf_text):
     for port_name, vlan_id in map_port_vlan.items():
         conf.add_trunk_vlan(port_name, [vlan_id])
 
-    assert conf.text == expected_conf_text
+    assert conf.text == expected_conf_text + "\n"
     assert conf.orig_text == conf_text
 
 
@@ -725,5 +725,5 @@ def test_remove_vlan_trunk(conf_text, port_names, expected_conf_text):
     for port_name in port_names:
         conf.remove_trunk_vlan(port_name)
 
-    assert conf.text == expected_conf_text
+    assert conf.text == expected_conf_text + "\n"
     assert conf.orig_text == conf_text
