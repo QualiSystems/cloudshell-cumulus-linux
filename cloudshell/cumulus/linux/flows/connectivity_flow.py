@@ -19,7 +19,7 @@ from cloudshell.shell.standards.networking.resource_config import (
 
 from cloudshell.cumulus.linux.cli.handler import CumulusCliConfigurator
 from cloudshell.cumulus.linux.command_actions.system import SystemActions
-from cloudshell.cumulus.linux.command_templates import CommandError
+from cloudshell.cumulus.linux.command_templates import CumulusCommandError
 from cloudshell.cumulus.linux.connectivity.vlan_config_handler import (
     VlanConfHandler,
     VlanQinqConfHandler,
@@ -72,7 +72,7 @@ class CumulusConnectivityFlow(AbstractConnectivityFlow):
                 sys_actions.upload_iface_conf(vlan_handler.text)
                 try:
                     sys_actions.if_reload()
-                except CommandError:
+                except CumulusCommandError:
                     sys_actions.upload_iface_conf(vlan_handler.orig_text)
                     raise
         return ConnectivityActionResult.success_result(action, "Success")
@@ -97,7 +97,7 @@ class CumulusConnectivityFlow(AbstractConnectivityFlow):
                 sys_actions.upload_iface_conf(vlan_handler.text)
                 try:
                     sys_actions.if_reload()
-                except CommandError:
+                except CumulusCommandError:
                     sys_actions.upload_iface_conf(vlan_handler.orig_text)
                     raise
         return ConnectivityActionResult.success_result(action, "Success")
