@@ -140,8 +140,10 @@ class VlanQinqConfHandler(AbstractVlanConfHandler):
                 if not self.conf.is_vlan_used(vlan_id, exclude_bridges=True):
                     vni_name = get_vni_name(vlan_id)
                     self.conf.remove_iface(vni_name)
-                    bridge.remove_port(vni_name)
-                    bridge.remove_trunk_vlan(vlan_id)
+                    if bridge:
+                        bridge.remove_port(vni_name)
+                        bridge.remove_trunk_vlan(vlan_id)
+        if bridge:
             bridge.remove_port(port_name)
 
     def add_trunk_vlan(self, port_name: str, vlans: Iterable[str]) -> None:
@@ -175,6 +177,8 @@ class VlanQinqConfHandler(AbstractVlanConfHandler):
                 if not self.conf.is_vlan_used(vlan_id, exclude_bridges=True):
                     vni_name = get_vni_name(vlan_id)
                     self.conf.remove_iface(vni_name)
-                    bridge.remove_port(vni_name)
-                    bridge.remove_trunk_vlan(vlan_id)
+                    if bridge:
+                        bridge.remove_port(vni_name)
+                        bridge.remove_trunk_vlan(vlan_id)
+        if bridge:
             bridge.remove_port(port_name)
