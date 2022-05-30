@@ -1,6 +1,9 @@
 from cloudshell.cli.command_template.command_template import CommandTemplate
 
-from cloudshell.cumulus.linux.command_templates import ERROR_MAP
+from cloudshell.cumulus.linux.command_templates import (
+    ERROR_MAP,
+    NotSupports2VlanAwareBridges,
+)
 
 CURL_ERROR_MAP = {
     r"curl:|[Ff]ail|[Ee]rror": "Uploading/downloading file via CURL failed"
@@ -28,6 +31,12 @@ TAR_UNCOMPRESS_FOLDER = CommandTemplate(
     error_map=ERROR_MAP,
 )
 
+IF_RELOAD_ERROR_MAP = {
+    r"[Oo]nly one object with attribute ['\"]bridge-vlan-aware yes['\"] allowed": (
+        NotSupports2VlanAwareBridges()
+    ),
+    **ERROR_MAP,
+}
 IF_RELOAD = CommandTemplate("ifreload -a", error_map=ERROR_MAP)
 RESTART_SERVICE = CommandTemplate("service {name} restart", error_map=ERROR_MAP)
 START_SERVICE = CommandTemplate("service {name} start", error_map=ERROR_MAP)
