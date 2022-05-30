@@ -17,7 +17,7 @@ class CommandError(CumulusCommandError):
 
 class NotSupports2VlanAwareBridges(CumulusCommandError):
     def __init__(self):
-        msg = "Theses version of Cumulus doesn't support 2 VLAN aware bridges"
+        msg = "This version of Cumulus doesn't support 2 VLAN aware bridges"
         super().__init__(msg)
 
 

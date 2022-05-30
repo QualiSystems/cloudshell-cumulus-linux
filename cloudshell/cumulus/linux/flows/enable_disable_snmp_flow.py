@@ -3,13 +3,10 @@ from __future__ import annotations
 import time
 from datetime import datetime, timedelta
 from logging import Logger
-from typing import ClassVar, Union
+from typing import TYPE_CHECKING, ClassVar, Union
 
 import attr
 
-from cloudshell.shell.standards.networking.resource_config import (
-    NetworkingResourceConfig,
-)
 from cloudshell.snmp.snmp_configurator import EnableDisableSnmpFlowInterface
 from cloudshell.snmp.snmp_parameters import (
     SNMPReadParameters,
@@ -22,6 +19,12 @@ from cloudshell.cumulus.linux.cli.handler import CumulusCliConfigurator
 from cloudshell.cumulus.linux.command_actions.snmp import BaseSnmpActions
 from cloudshell.cumulus.linux.command_actions.system import SystemActions
 from cloudshell.cumulus.linux.snmp.snmp_conf_handler import SnmpConfigHandler
+
+if TYPE_CHECKING:
+    from cloudshell.shell.standards.networking.resource_config import (
+        NetworkingResourceConfig,
+    )
+
 
 SNMP_PARAM_TYPES = Union[SNMPReadParameters, SNMPWriteParameters, SNMPV3Parameters]
 

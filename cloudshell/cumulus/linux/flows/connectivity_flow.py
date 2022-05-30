@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from logging import Logger
 from threading import Lock
+from typing import TYPE_CHECKING
 
 from cloudshell.shell.flows.connectivity.basic_flow import AbstractConnectivityFlow
 from cloudshell.shell.flows.connectivity.helpers.vlan_helper import get_vlan_list
@@ -13,9 +16,6 @@ from cloudshell.shell.flows.connectivity.models.driver_response import (
 from cloudshell.shell.flows.connectivity.parse_request_service import (
     AbstractParseConnectivityService,
 )
-from cloudshell.shell.standards.networking.resource_config import (
-    NetworkingResourceConfig,
-)
 
 from cloudshell.cumulus.linux.cli.handler import CumulusCliConfigurator
 from cloudshell.cumulus.linux.command_actions.system import SystemActions
@@ -24,6 +24,12 @@ from cloudshell.cumulus.linux.connectivity.vlan_config_handler import (
     VlanConfHandler,
     VlanQinqConfHandler,
 )
+
+if TYPE_CHECKING:
+    from cloudshell.shell.standards.networking.resource_config import (
+        NetworkingResourceConfig,
+    )
+
 
 lock = Lock()
 
