@@ -382,6 +382,26 @@ iface vni-14
 auto swp2
 iface swp2""",
         ),
+        (  # remove VLAN without bridge and the port without VLAN
+            """auto swp1
+iface swp1""",
+            ["swp1"],
+            """auto swp1
+iface swp1""",
+        ),
+        (  # remove VLAN without bridge
+            """auto swp1
+iface swp1
+    bridge-access 14
+
+auto vni-14
+iface vni-14
+    bridge-access 14
+    vxlan-id 14""",
+            ["swp1"],
+            """auto swp1
+iface swp1""",
+        ),
     ),
 )
 def test_remove_vlan_access(conf_text, port_names, expected_conf_text):
@@ -716,6 +736,26 @@ iface vni-14
 
 auto swp2
 iface swp2""",
+        ),
+        (  # remove VLAN without bridge and the port without VLAN
+            """auto swp1
+iface swp1""",
+            ["swp1"],
+            """auto swp1
+iface swp1""",
+        ),
+        (  # remove VLAN without bridge
+            """auto swp1
+iface swp1
+    bridge-vids 14
+
+auto vni-14
+iface vni-14
+    bridge-access 14
+    vxlan-id 14""",
+            ["swp1"],
+            """auto swp1
+iface swp1""",
         ),
     ),
 )
