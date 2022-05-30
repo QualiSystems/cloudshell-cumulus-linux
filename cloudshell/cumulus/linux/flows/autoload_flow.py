@@ -1,13 +1,18 @@
 from __future__ import annotations
 
 from logging import Logger
+from typing import TYPE_CHECKING
 
 from cloudshell.shell.core.driver_context import AutoLoadDetails
 from cloudshell.shell.flows.autoload.basic_flow import AbstractAutoloadFlow
-from cloudshell.shell.standards.networking.autoload_model import NetworkingResourceModel
 from cloudshell.snmp.snmp_configurator import EnableDisableSnmpConfigurator
 
 from cloudshell.cumulus.linux.snmp.snmp_autoload import CumulusSNMPAutoload
+
+if TYPE_CHECKING:
+    from cloudshell.shell.standards.networking.autoload_model import (
+        NetworkingResourceModel,
+    )
 
 
 class AutoloadFlow(AbstractAutoloadFlow):

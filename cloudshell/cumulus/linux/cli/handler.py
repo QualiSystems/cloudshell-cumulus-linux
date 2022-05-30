@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from logging import Logger
+from typing import TYPE_CHECKING
 
 from cloudshell.cli.configurator import AbstractModeConfigurator
 from cloudshell.cli.service.cli import CLI
@@ -7,14 +10,16 @@ from cloudshell.cli.service.session_pool_context_manager import (
     SessionPoolContextManager,
 )
 from cloudshell.cli.service.session_pool_manager import SessionPoolManager
-from cloudshell.shell.standards.networking.resource_config import (
-    NetworkingResourceConfig,
-)
 
 from cloudshell.cumulus.linux.cli.command_modes import (
     DefaultCommandMode,
     RootCommandMode,
 )
+
+if TYPE_CHECKING:
+    from cloudshell.shell.standards.networking.resource_config import (
+        NetworkingResourceConfig,
+    )
 
 
 def get_cli(resource_config: NetworkingResourceConfig) -> CLI:

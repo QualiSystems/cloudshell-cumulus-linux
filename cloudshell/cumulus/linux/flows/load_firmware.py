@@ -1,16 +1,19 @@
 from __future__ import annotations
 
 from logging import Logger
+from typing import TYPE_CHECKING
 
 from cloudshell.shell.flows.firmware.basic_flow import AbstractFirmwareFlow
 from cloudshell.shell.flows.utils.url import LocalFileURL
-from cloudshell.shell.standards.networking.resource_config import (
-    NetworkingResourceConfig,
-)
 
 from cloudshell.cumulus.linux.cli.handler import CumulusCliConfigurator
 from cloudshell.cumulus.linux.command_actions.firmware import FirmwareActions
 from cloudshell.cumulus.linux.command_actions.system import SystemActions
+
+if TYPE_CHECKING:
+    from cloudshell.shell.standards.networking.resource_config import (
+        NetworkingResourceConfig,
+    )
 
 
 class LoadFirmwareFlow(AbstractFirmwareFlow):

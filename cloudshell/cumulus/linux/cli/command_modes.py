@@ -1,7 +1,13 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from cloudshell.cli.service.command_mode import CommandMode
-from cloudshell.shell.standards.networking.resource_config import (
-    NetworkingResourceConfig,
-)
+
+if TYPE_CHECKING:
+    from cloudshell.shell.standards.networking.resource_config import (
+        NetworkingResourceConfig,
+    )
 
 
 class DefaultCommandMode(CommandMode):
