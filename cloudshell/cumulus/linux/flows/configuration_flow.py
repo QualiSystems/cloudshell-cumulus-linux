@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from logging import Logger
+from typing import TYPE_CHECKING
 
 from cloudshell.shell.flows.configuration.basic_flow import (
     AbstractConfigurationFlow,
@@ -8,13 +9,16 @@ from cloudshell.shell.flows.configuration.basic_flow import (
     RestoreMethod,
 )
 from cloudshell.shell.flows.utils.url import LocalFileURL
-from cloudshell.shell.standards.networking.resource_config import (
-    NetworkingResourceConfig,
-)
 
 from cloudshell.cumulus.linux.cli.handler import CumulusCliConfigurator
 from cloudshell.cumulus.linux.command_actions.system import SystemActions
 from cloudshell.cumulus.linux.command_templates import CommandError
+
+if TYPE_CHECKING:
+    from cloudshell.shell.standards.networking.resource_config import (
+        NetworkingResourceConfig,
+    )
+
 
 CONF_FOLDERS = (
     "/etc/network/",
