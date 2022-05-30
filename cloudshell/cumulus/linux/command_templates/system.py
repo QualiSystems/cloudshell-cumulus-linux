@@ -37,7 +37,7 @@ IF_RELOAD_ERROR_MAP = {
     ),
     **ERROR_MAP,
 }
-IF_RELOAD = CommandTemplate("ifreload -a", error_map=ERROR_MAP)
+IF_RELOAD = CommandTemplate("ifreload -a", error_map=IF_RELOAD_ERROR_MAP)
 RESTART_SERVICE = CommandTemplate("service {name} restart", error_map=ERROR_MAP)
 START_SERVICE = CommandTemplate("service {name} start", error_map=ERROR_MAP)
 STOP_SERVICE = CommandTemplate("service {name} stop", error_map=ERROR_MAP)

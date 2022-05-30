@@ -74,6 +74,7 @@ class CumulusConnectivityFlow(AbstractConnectivityFlow):
                     sys_actions.if_reload()
                 except CumulusCommandError:
                     sys_actions.upload_iface_conf(vlan_handler.orig_text)
+                    sys_actions.if_reload()
                     raise
         return ConnectivityActionResult.success_result(action, "Success")
 
@@ -99,5 +100,6 @@ class CumulusConnectivityFlow(AbstractConnectivityFlow):
                     sys_actions.if_reload()
                 except CumulusCommandError:
                     sys_actions.upload_iface_conf(vlan_handler.orig_text)
+                    sys_actions.if_reload()
                     raise
         return ConnectivityActionResult.success_result(action, "Success")
