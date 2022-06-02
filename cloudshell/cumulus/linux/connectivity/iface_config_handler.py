@@ -242,6 +242,12 @@ class IfaceConfig:
         if match:
             return IfaceSection(match.group(), self)
 
+    def get_or_create_iface(self, iface_name: str) -> IfaceSection:
+        iface = self.get_iface(iface_name)
+        if not iface:
+            iface = IfaceSection.create_iface(iface_name, self)
+        return iface
+
     def update_iface(self, iface: IfaceSection) -> None:
         self.text = self.text.replace(iface.priv_text, iface.text)
 
