@@ -20,10 +20,7 @@ from cloudshell.shell.flows.connectivity.parse_request_service import (
 from cloudshell.cumulus.linux.cli.handler import CumulusCliConfigurator
 from cloudshell.cumulus.linux.command_actions.system import SystemActions
 from cloudshell.cumulus.linux.command_templates import CumulusCommandError
-from cloudshell.cumulus.linux.connectivity.vlan_config_handler import (
-    VlanConfHandler,
-    VlanQinqConfHandler,
-)
+from cloudshell.cumulus.linux.connectivity.vlan_config_handler import VlanConfHandler
 
 if TYPE_CHECKING:
     from cloudshell.shell.standards.networking.resource_config import (
@@ -51,37 +48,41 @@ class CumulusConnectivityFlow(AbstractConnectivityFlow):
     def _get_port_name(action: ConnectivityActionModel) -> str:
         return action.action_target.name.split("/")[-1]
 
+    @staticmethod
+    def _upload_new_conf(
+        sys_actions: SystemActions, vlan_handler: VlanConfHandler
+    ) -> None:
+        sys_actions.upload_iface_conf(vlan_handler.text)
+        try:
+            sys_actions.if_reload()
+        except CumulusCommandError:
+            sys_actions.upload_iface_conf(vlan_handler.orig_text)
+            sys_actions.if_reload()
+            raise
+
     def _set_vlan(self, action: ConnectivityActionModel) -> ConnectivityActionResult:
         vlan_str = action.connection_params.vlan_id
         port_name = self._get_port_name(action)
+        qinq = action.connection_params.vlan_service_attrs.qnq
 
         with lock:
             with self._cli_configurator.root_mode_service() as cli_service:
                 sys_actions = SystemActions(cli_service, self._logger)
                 conf_text = sys_actions.get_iface_conf()
-                if action.connection_params.vlan_service_attrs.qnq:
-                    vlan_handler = VlanQinqConfHandler(conf_text)
-                else:
-                    vlan_handler = VlanConfHandler(conf_text)
+                vlan_handler = VlanConfHandler(conf_text)
+                vlan_handler.prepare_bridge(qinq)
 
-                vlan_handler.prepare_bridge()
                 if action.connection_params.mode is ConnectionModeEnum.ACCESS:
-                    vlan_handler.add_access_vlan(port_name, vlan_str)
+                    vlan_handler.add_access_vlan(port_name, vlan_str, qinq)
                 else:
                     vlan_list = get_vlan_list(
                         vlan_str,
                         is_vlan_range_supported=False,
                         is_multi_vlan_supported=False,
                     )
-                    vlan_handler.add_trunk_vlan(port_name, vlan_list)
+                    vlan_handler.add_trunk_vlan(port_name, vlan_list, qinq)
 
-                sys_actions.upload_iface_conf(vlan_handler.text)
-                try:
-                    sys_actions.if_reload()
-                except CumulusCommandError:
-                    sys_actions.upload_iface_conf(vlan_handler.orig_text)
-                    sys_actions.if_reload()
-                    raise
+                self._upload_new_conf(sys_actions, vlan_handler)
         return ConnectivityActionResult.success_result(action, "Success")
 
     def _remove_vlan(self, action: ConnectivityActionModel) -> ConnectivityActionResult:
@@ -91,21 +92,9 @@ class CumulusConnectivityFlow(AbstractConnectivityFlow):
             with self._cli_configurator.root_mode_service() as cli_service:
                 sys_actions = SystemActions(cli_service, self._logger)
                 conf_text = sys_actions.get_iface_conf()
-                if action.connection_params.vlan_service_attrs.qnq:
-                    vlan_handler = VlanQinqConfHandler(conf_text)
-                else:
-                    vlan_handler = VlanConfHandler(conf_text)
 
-                if action.connection_params.mode is ConnectionModeEnum.ACCESS:
-                    vlan_handler.remove_access_vlan(port_name)
-                else:
-                    vlan_handler.remove_trunk_vlan(port_name)
+                vlan_handler = VlanConfHandler(conf_text)
+                vlan_handler.remove_vlan(port_name)
 
-                sys_actions.upload_iface_conf(vlan_handler.text)
-                try:
-                    sys_actions.if_reload()
-                except CumulusCommandError:
-                    sys_actions.upload_iface_conf(vlan_handler.orig_text)
-                    sys_actions.if_reload()
-                    raise
+                self._upload_new_conf(sys_actions, vlan_handler)
         return ConnectivityActionResult.success_result(action, "Success")
